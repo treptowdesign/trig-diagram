@@ -73,9 +73,11 @@ canvas.addEventListener('mousemove', function(event) {
     const pointX = centerX + (radius * Math.cos(angle));
     const pointY = centerY + (radius * Math.sin(angle));
     // point for tan & sec - where tan crosses the x-axis
-    const tangentX = centerX + (radius * (Math.cos(angle) + Math.tan(angle) * Math.sin(angle)));
+    // const tangentX = centerX + (radius * (Math.cos(angle) + Math.tan(angle) * Math.sin(angle)));
+    const secant = centerX + (radius * (1 / Math.cos(angle)));
     // point for cotan & csc - where cotan crosses the y-axis
-    const cotangentY = centerY + (radius * (Math.cos(angle) / Math.tan(angle) + Math.sin(angle)));
+    // const cotangentY = centerY + (radius * (Math.cos(angle) / Math.tan(angle) + Math.sin(angle)));
+    const cosecant = centerY + (radius * (1 / Math.sin(angle)));
 
     // clear 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -86,20 +88,20 @@ canvas.addEventListener('mousemove', function(event) {
     drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, 'purple');
     // draw cosine of theta
     drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, 'green');
-    // draw tangent of theta (uses the tangentX point)
-    drawLine({x: pointX, y: pointY}, {x: tangentX, y: centerY}, 'orange'); 
-    // draw secant of theta (uses the tangentX point)
-    drawLine({x: centerX, y: centerY}, {x: tangentX, y: centerY}, 'cyan');
-    // draw cotangent of theta (uses the cotangentY point)
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: cotangentY}, 'red'); 
-    // draw cosecant of theta (uses the cotangentY point)
-    drawLine({x: centerX, y: centerY}, {x: centerX, y: cotangentY}, 'pink'); 
+    // draw tangent of theta (uses the secant)
+    drawLine({x: pointX, y: pointY}, {x: secant, y: centerY}, 'orange'); 
+    // draw secant of theta
+    drawLine({x: centerX, y: centerY}, {x: secant, y: centerY}, 'cyan');
+    // draw cotangent of theta (uses the cosecant)
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecant}, 'red'); 
+    // draw cosecant of theta
+    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecant}, 'pink'); 
     // draw arctan (main angle line)
     drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, 'black'); 
     // draw tangent point
-    drawPoint({x: tangentX, y: centerY});
+    drawPoint({x: secant, y: centerY});
     // draw cotangent point
-    drawPoint({x: centerX, y: cotangentY});
+    drawPoint({x: centerX, y: cosecant});
     // draw center point
     drawPoint({x: centerX, y: centerY});
     // draw intersection point
