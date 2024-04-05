@@ -83,7 +83,7 @@ function displayValues(vals){
     ctx.fillStyle = 'cyan';
     ctx.fillText('Sec: '+(vals.sec), 20, 100);
     ctx.fillStyle = 'red';
-    ctx.fillText('cot: '+(vals.cot), 20, 120);
+    ctx.fillText('Cot: '+(vals.cot), 20, 120);
     ctx.fillStyle = '#111';
 }
 
