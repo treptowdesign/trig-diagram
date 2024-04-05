@@ -56,7 +56,7 @@ function drawUnitCircle(){
 
 function drawLine(start, end, color){
     ctx.strokeStyle = color; 
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
