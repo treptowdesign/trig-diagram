@@ -1,9 +1,17 @@
+const width = 600;
+const height = 600;
 const canvas = document.getElementById('unitCircleCanvas');
 const ctx = canvas.getContext('2d');
+const ratio = window.devicePixelRatio || 1;
 
-// unit circle
-const centerX = canvas.width / 2;
-const centerY = canvas.height / 2;
+canvas.width = width * ratio;
+canvas.height = height * ratio;
+canvas.style.width = width + 'px';
+canvas.style.height = height + 'px';
+ctx.scale(ratio, ratio); 
+
+const centerX = canvas.width / 2 / ratio;
+const centerY = canvas.height / 2 / ratio;
 const radius = 100;
 
 // functions
