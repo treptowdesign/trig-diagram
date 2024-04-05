@@ -48,16 +48,35 @@ function drawUnitCircle(){
 
 function drawLine(start, end, color){
     ctx.strokeStyle = color; 
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
     ctx.stroke();
     ctx.strokeStyle = '#111'; 
 }
+
 function drawPoint(point){
     ctx.beginPath();
     ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI); 
     ctx.fill();
+}
+
+function displayValues(vals){
+    ctx.font = '14px Arial';
+    ctx.fillStyle = 'purple';
+    ctx.fillText('Sin: '+(vals.sin), 20, 20);
+    ctx.fillStyle = 'green';
+    ctx.fillText('Cos: '+(vals.cos), 20, 40);
+    ctx.fillStyle = 'orange';
+    ctx.fillText('Tan: '+(vals.tan), 20, 60);
+    ctx.fillStyle = 'pink';
+    ctx.fillText('Csc: '+(vals.csc), 20, 80);
+    ctx.fillStyle = 'cyan';
+    ctx.fillText('Sec: '+(vals.sec), 20, 100);
+    ctx.fillStyle = 'red';
+    ctx.fillText('cot: '+(vals.cot), 20, 120);
+    ctx.fillStyle = '#111';
 }
 
 drawGrid();
@@ -69,15 +88,23 @@ canvas.addEventListener('mousemove', function(event) {
     const mouseY = event.clientY - rect.top;
     const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
 
-    // points for sine/cosine
-    const pointX = centerX + (radius * Math.cos(angle));
-    const pointY = centerY + (radius * Math.sin(angle));
-    // point for tan & sec - where tan crosses the x-axis
-    // const tangentX = centerX + (radius * (Math.cos(angle) + Math.tan(angle) * Math.sin(angle)));
-    const secant = centerX + (radius * (1 / Math.cos(angle)));
-    // point for cotan & csc - where cotan crosses the y-axis
-    // const cotangentY = centerY + (radius * (Math.cos(angle) / Math.tan(angle) + Math.sin(angle)));
-    const cosecant = centerY + (radius * (1 / Math.sin(angle)));
+    // update all 6 trig function values
+    const vals = {
+        sin: Math.sin(angle),
+        cos: Math.cos(angle),
+        tan: Math.tan(angle),
+        sec: (1 / Math.cos(angle)),
+        csc: (1 / Math.sin(angle)),
+        cot: (1 / Math.tan(angle))
+    }
+
+    // console.log(vals);
+
+    // get points from values
+    const pointX = centerX + (radius * vals.cos);
+    const pointY = centerY + (radius * vals.sin);
+    const secantX = centerX + (radius * vals.sec);
+    const cosecantY = centerY + (radius * vals.csc);
 
     // clear 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -88,24 +115,26 @@ canvas.addEventListener('mousemove', function(event) {
     drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, 'purple');
     // draw cosine of theta
     drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, 'green');
-    // draw tangent of theta (uses the secant)
-    drawLine({x: pointX, y: pointY}, {x: secant, y: centerY}, 'orange'); 
+    // draw tangent of theta (uses the secantX)
+    drawLine({x: pointX, y: pointY}, {x: secantX, y: centerY}, 'orange'); 
     // draw secant of theta
-    drawLine({x: centerX, y: centerY}, {x: secant, y: centerY}, 'cyan');
-    // draw cotangent of theta (uses the cosecant)
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecant}, 'red'); 
+    drawLine({x: centerX, y: centerY}, {x: secantX, y: centerY}, 'cyan');
+    // draw cotangent of theta (uses the cosecantY)
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecantY}, 'red'); 
     // draw cosecant of theta
-    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecant}, 'pink'); 
+    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecantY}, 'pink'); 
     // draw arctan (main angle line)
     drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, 'black'); 
     // draw tangent point
-    drawPoint({x: secant, y: centerY});
+    drawPoint({x: secantX, y: centerY});
     // draw cotangent point
-    drawPoint({x: centerX, y: cosecant});
+    drawPoint({x: centerX, y: cosecantY});
     // draw center point
     drawPoint({x: centerX, y: centerY});
     // draw intersection point
     drawPoint({x: pointX, y: pointY});
+    // display values via text
+    displayValues(vals);
 
 });
 
