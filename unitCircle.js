@@ -1,3 +1,7 @@
+/////////////////////////////////////////////////////////////////////
+// Setup
+/////////////////////////////////////////////////////////////////////
+
 const width = 600;
 const height = 600;
 const canvas = document.getElementById('unitCircleCanvas');
@@ -10,19 +14,26 @@ canvas.style.width = width + 'px';
 canvas.style.height = height + 'px';
 ctx.scale(ratio, ratio); 
 
-const centerX = canvas.width / 2 / ratio;
-const centerY = canvas.height / 2 / ratio;
+const centerX = (canvas.width / 2) / ratio;
+const centerY = (canvas.height / 2) / ratio; 
 const radius = 100;
 
-// functions
+/////////////////////////////////////////////////////////////////////
+// Helper Functions
+/////////////////////////////////////////////////////////////////////
+
 function radiansToDegrees(angle){ // im not actually using this
     // convert: x = angle * (180 / Math.PI); 
     // make positive: (x + 360) % 360;
     return (angle * (180 / Math.PI) + 360) % 360;
 }
 
-// bounding rectangle and grid
+/////////////////////////////////////////////////////////////////////
+// Draw Functions 
+/////////////////////////////////////////////////////////////////////
+
 function drawGrid() {
+    ctx.lineWidth = 1;
     ctx.strokeStyle = '#ddd'; 
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i <= canvas.width; i += 100) {
@@ -47,16 +58,17 @@ function drawGrid() {
     ctx.strokeStyle = '#111'; 
 }
 
-function drawUnitCircle(){
-    ctx.strokeStyle = '#111'; 
+function drawUnitCircle({ color = '#111', radius = 100 } = {}){
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = color; 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.stroke();
 }
 
 function drawLine(start, end, color){
+    ctx.lineWidth = 2;
     ctx.strokeStyle = color; 
-    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
     ctx.lineTo(end.x, end.y);
@@ -87,16 +99,12 @@ function displayValues(vals){
     ctx.fillStyle = '#111';
 }
 
-drawGrid();
-drawUnitCircle();
+/////////////////////////////////////////////////////////////////////
+// Main Update Function
+/////////////////////////////////////////////////////////////////////
 
-canvas.addEventListener('mousemove', function(event) {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
-
-    // update all 6 trig function values
+function updateDraw({ angle = 0 } = {}){
+    // calc trig function values
     const vals = {
         sin: Math.sin(angle),
         cos: Math.cos(angle),
@@ -105,15 +113,11 @@ canvas.addEventListener('mousemove', function(event) {
         csc: (1 / Math.sin(angle)),
         cot: (1 / Math.tan(angle))
     }
-
-    // console.log(vals);
-
     // get points from values
     const pointX = centerX + (radius * vals.cos);
     const pointY = centerY + (radius * vals.sin);
     const secantX = centerX + (radius * vals.sec);
     const cosecantY = centerY + (radius * vals.csc);
-
     // clear 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw grid and unit circle
@@ -143,6 +147,33 @@ canvas.addEventListener('mousemove', function(event) {
     drawPoint({x: pointX, y: pointY});
     // display values via text
     displayValues(vals);
+}
 
+/////////////////////////////////////////////////////////////////////
+// Initializing
+/////////////////////////////////////////////////////////////////////
+
+const initAngle = -1 * (Math.PI / 4);
+updateDraw({angle: initAngle});
+
+/////////////////////////////////////////////////////////////////////
+// Mouse Events
+/////////////////////////////////////////////////////////////////////
+
+let isMouseDown = false;
+canvas.addEventListener('mousedown', function(event) {
+    isMouseDown = true;
+});
+
+canvas.addEventListener('mouseup', function(event) {
+    isMouseDown = false;
+});
+
+canvas.addEventListener('mousemove', function(event) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    updateDraw({angle: angle});
 });
 
