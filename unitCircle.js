@@ -18,11 +18,17 @@ const centerX = (canvas.width / 2) / ratio;
 const centerY = (canvas.height / 2) / ratio; 
 const radius = 100;
 
+// Mouse States (to be updated by events)
+let mousePos = {x: 0, y: 0};
+let isMouseDown = false;
+
 /////////////////////////////////////////////////////////////////////
 // Helper Functions
 /////////////////////////////////////////////////////////////////////
 
-function radiansToDegrees(angle){ // im not actually using this
+// im not actually using this
+// everything is in radians
+function radiansToDegrees(angle){ 
     // convert: x = angle * (180 / Math.PI); 
     // make positive: (x + 360) % 360;
     return (angle * (180 / Math.PI) + 360) % 360;
@@ -122,7 +128,7 @@ function updateDraw({ angle = 0 } = {}){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw grid and unit circle
     drawGrid();
-    drawUnitCircle();
+    drawUnitCircle({color: (isMouseDown ? 'red' : '#111')});
     // draw sine of theta
     drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, 'purple');
     // draw cosine of theta
@@ -160,20 +166,23 @@ updateDraw({angle: initAngle});
 // Mouse Events
 /////////////////////////////////////////////////////////////////////
 
-let isMouseDown = false;
 canvas.addEventListener('mousedown', function(event) {
     isMouseDown = true;
+    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
+    updateDraw({angle: angle});
 });
 
 canvas.addEventListener('mouseup', function(event) {
     isMouseDown = false;
+    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
+    updateDraw({angle: angle});
 });
 
 canvas.addEventListener('mousemove', function(event) {
     const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
-    const angle = Math.atan2(mouseY - centerY, mouseX - centerX);
+    mousePos.x = event.clientX - rect.left;
+    mousePos.y = event.clientY - rect.top;
+    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
     updateDraw({angle: angle});
 });
 
