@@ -26,11 +26,15 @@ let isMouseDown = false;
 // Helper Functions
 /////////////////////////////////////////////////////////////////////
 
-// im not actually using this
-// everything is in radians
+function getAngleTheta(){
+    return Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
+}
+
 function radiansToDegrees(angle){ 
     // convert: x = angle * (180 / Math.PI); 
     // make positive: (x + 360) % 360;
+    // im not actually using this anywhere
+    // everything is in radians
     return (angle * (180 / Math.PI) + 360) % 360;
 }
 
@@ -128,7 +132,7 @@ function updateDraw({ angle = 0 } = {}){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw grid and unit circle
     drawGrid();
-    drawUnitCircle({color: (isMouseDown ? 'red' : '#111')});
+    drawUnitCircle({color: (isMouseDown ? '#999' : '#111')});
     // draw sine of theta
     drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, 'purple');
     // draw cosine of theta
@@ -168,21 +172,38 @@ updateDraw({angle: initAngle});
 
 canvas.addEventListener('mousedown', function(event) {
     isMouseDown = true;
-    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
-    updateDraw({angle: angle});
+    updateDraw({angle: getAngleTheta()});
 });
 
 canvas.addEventListener('mouseup', function(event) {
     isMouseDown = false;
-    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
-    updateDraw({angle: angle});
+    updateDraw({angle: getAngleTheta()});
 });
 
 canvas.addEventListener('mousemove', function(event) {
     const rect = canvas.getBoundingClientRect();
-    mousePos.x = event.clientX - rect.left;
-    mousePos.y = event.clientY - rect.top;
-    const angle = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);
-    updateDraw({angle: angle});
+    if(isMouseDown){
+        mousePos.x = event.clientX - rect.left;
+        mousePos.y = event.clientY - rect.top;
+        updateDraw({angle: getAngleTheta()});
+    }
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// end file
