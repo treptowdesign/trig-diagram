@@ -92,18 +92,35 @@ function drawPoint(point){
     ctx.fill();
 }
 
-function drawThetaArc({ angle = 0 } = {}){
-    console.log(angle);
-    ctx.lineWidth = 1;
-    if(angle < -1 * ( 0.5 * Math.PI)){
-        ctx.strokeStyle = '#111'; 
-    } else if(angle < ( 0.5 * Math.PI)){
-        ctx.strokeStyle = 'blue'; 
+function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
+    let thetaArc = {start: 0, end: 0}; // theta start & end
+    let raOffset = {x: 0, y: 0}; // right angle offset x & y
+    if (angle < (-Math.PI / 2)) {
+        [thetaArc.start, thetaArc.end] = [-Math.PI, angle]; 
+        raOffset = {x: 6, y: -6};
+    } else if (angle < 0) {
+        [thetaArc.start, thetaArc.end] = [angle, 0]; 
+        raOffset = {x: -6, y: -6};
+    } else if (angle < (Math.PI / 2)) {
+        [thetaArc.start, thetaArc.end] = [0, angle]; 
+        raOffset = {x: -6, y: 6};
     } else {
-        ctx.strokeStyle = 'red'; 
+        [thetaArc.start, thetaArc.end] = [angle, (Math.PI)]; 
+        raOffset = {x: 6, y: 6};
     }
+    // Theta Angle Arc
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#111'; 
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 8, angle, 0);
+    ctx.arc(centerX, centerY, 8, thetaArc.start, thetaArc.end);
+    ctx.stroke();
+    // Right Angle Marker
+    ctx.strokeStyle = 'red'; 
+    ctx.beginPath();
+    ctx.moveTo(cosX, centerY + raOffset.y); 
+    ctx.lineTo(cosX + raOffset.x, centerY + raOffset.y); 
+    ctx.moveTo(cosX + raOffset.x, centerY + raOffset.y); 
+    ctx.lineTo(cosX + raOffset.x, centerY); 
     ctx.stroke();
 }
 
@@ -172,7 +189,7 @@ function updateDraw({ angle = 0 } = {}){
     drawPoint({x: pointX, y: pointY});
 
     // theta arc 
-    drawThetaArc({angle: angle});
+    drawAngleArcs({angle: angle, cosX: pointX});
 
     // display values via text
     displayValues(vals);
