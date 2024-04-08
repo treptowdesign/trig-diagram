@@ -92,6 +92,21 @@ function drawPoint(point){
     ctx.fill();
 }
 
+function drawThetaArc({ angle = 0 } = {}){
+    console.log(angle);
+    ctx.lineWidth = 1;
+    if(angle < -1 * ( 0.5 * Math.PI)){
+        ctx.strokeStyle = '#111'; 
+    } else if(angle < ( 0.5 * Math.PI)){
+        ctx.strokeStyle = 'blue'; 
+    } else {
+        ctx.strokeStyle = 'red'; 
+    }
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 8, angle, 0);
+    ctx.stroke();
+}
+
 function displayValues(vals){
     ctx.font = '14px Arial';
     ctx.fillStyle = 'purple';
@@ -155,6 +170,10 @@ function updateDraw({ angle = 0 } = {}){
     drawPoint({x: centerX, y: centerY});
     // draw intersection point
     drawPoint({x: pointX, y: pointY});
+
+    // theta arc 
+    drawThetaArc({angle: angle});
+
     // display values via text
     displayValues(vals);
 }
