@@ -15,6 +15,7 @@ canvas.height = height * ratio;
 canvas.style.width = width + 'px';
 canvas.style.height = height + 'px';
 ctx.scale(ratio, ratio); 
+ctx.font = '600 14px "Noto Serif"';
 
 const centerX = (canvas.width / 2) / ratio;
 const centerY = (canvas.height / 2) / ratio; 
@@ -36,6 +37,7 @@ canvas2.height = height2 * ratio;
 canvas2.style.width = width + 'px';
 canvas2.style.height = height + 'px';
 ctx2.scale(ratio, ratio); 
+ctx2.font = '600 14px "Noto Serif"';
 
 
 /////////////////////////////////////////////////////////////////////
@@ -142,7 +144,6 @@ function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
 }
 
 function displayValues(vals){
-    ctx.font = '14px Arial';
     ctx.fillStyle = 'purple';
     ctx.fillText('Sin: '+(vals.sin), 10, 20);
     ctx.fillStyle = 'green';
@@ -221,6 +222,15 @@ function updateDraw({ angle = 0 } = {}){
 
 const initAngle = -1 * (Math.PI / 4);
 updateDraw({angle: initAngle});
+
+WebFont.load({
+    google: {
+    families: ['PT Serif:400,700']
+    },
+    active: function() {
+        updateDraw({angle: initAngle}); // redrawing to make font render
+    }
+});
 
 /////////////////////////////////////////////////////////////////////
 // Draw Function Graph (starting with Sine)
