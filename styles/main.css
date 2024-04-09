@@ -1,5 +1,6 @@
 body {
-  margin: 10px;
+  margin: 0;
+  background: #080d11;
 }
 
 .app {
@@ -20,7 +21,7 @@ body {
 
 .cell {
   display: block;
-  border: solid 1px #ccc;
+  border: solid 1px #7a909e;
   font-size: 0;
 }
 

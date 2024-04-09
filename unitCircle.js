@@ -39,6 +39,19 @@ canvas2.style.height = height + 'px';
 ctx2.scale(ratio, ratio); 
 ctx2.font = '600 14px "Noto Serif"';
 
+// Colors 
+const colors = {
+    gray: '#7a909e',
+    grayMed: '#1d2933',
+    grayDark: '#2d3b47',
+    purple: '#ac71f0',
+    green: '#16a163',
+    orange: '#fc9162',
+    red: '#fa5343',
+    teal: '#279c9c',
+    pink: '#ed4cb7'
+};
+
 
 /////////////////////////////////////////////////////////////////////
 // Helper Functions
@@ -56,13 +69,19 @@ function radiansToDegrees(angle){
     return (angle * (180 / Math.PI) + 360) % 360;
 }
 
+// function to round to 4 decimals, hardcoded @ 4 for now
+function roundDec(val){
+    return Math.round(val * 10000) / 10000;
+}
+
 /////////////////////////////////////////////////////////////////////
 // Draw Functions 
 /////////////////////////////////////////////////////////////////////
 
 function drawGrid() {
     ctx.lineWidth = 1;
-    ctx.strokeStyle = '#ddd'; 
+    ctx.strokeStyle = colors.gray; 
+    ctx.globalAlpha = 0.3;
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
     for (let i = 0; i <= canvas.width; i += radius) {
         ctx.beginPath();
@@ -83,11 +102,12 @@ function drawGrid() {
         ctx.stroke();
     }
     ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
     ctx.strokeStyle = '#111'; 
 }
 
 function drawUnitCircle({ color = '#111'} = {}){
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = color; 
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
@@ -95,7 +115,7 @@ function drawUnitCircle({ color = '#111'} = {}){
 }
 
 function drawLine(start, end, color){
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = color; 
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
@@ -106,7 +126,7 @@ function drawLine(start, end, color){
 
 function drawPoint(point){
     ctx.beginPath();
-    ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI); 
+    ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI); 
     ctx.fill();
 }
 
@@ -116,25 +136,25 @@ function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
     // adjust values based on unit circle quadrant 
     if (angle < (-Math.PI / 2)) {
         [thetaArc.start, thetaArc.end] = [-Math.PI, angle]; 
-        raOffset = {x: 6, y: -6};
+        raOffset = {x: 8, y: -8};
     } else if (angle < 0) {
         [thetaArc.start, thetaArc.end] = [angle, 0]; 
-        raOffset = {x: -6, y: -6};
+        raOffset = {x: -8, y: -8};
     } else if (angle < (Math.PI / 2)) {
         [thetaArc.start, thetaArc.end] = [0, angle]; 
-        raOffset = {x: -6, y: 6};
+        raOffset = {x: -8, y: 8};
     } else {
         [thetaArc.start, thetaArc.end] = [angle, (Math.PI)]; 
-        raOffset = {x: 6, y: 6};
+        raOffset = {x: 8, y: 8};
     }
     // Theta Angle Arc
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#111'; 
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#fff'; 
     ctx.beginPath();
-    ctx.arc(centerX, centerY, 8, thetaArc.start, thetaArc.end);
+    ctx.arc(centerX, centerY, 14, thetaArc.start, thetaArc.end);
     ctx.stroke();
     // Right Angle Marker
-    ctx.strokeStyle = 'red'; 
+    ctx.strokeStyle = colors.red; 
     ctx.beginPath();
     ctx.moveTo(cosX, centerY + raOffset.y); 
     ctx.lineTo(cosX + raOffset.x, centerY + raOffset.y); 
@@ -144,19 +164,19 @@ function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
 }
 
 function displayValues(vals){
-    ctx.fillStyle = 'purple';
-    ctx.fillText('Sin: '+(vals.sin), 10, 20);
-    ctx.fillStyle = 'green';
-    ctx.fillText('Cos: '+(vals.cos), 10, 40);
-    ctx.fillStyle = 'orange';
-    ctx.fillText('Tan: '+(vals.tan), 10, 60);
-    ctx.fillStyle = 'pink';
-    ctx.fillText('Csc: '+(vals.csc), 10, 80);
-    ctx.fillStyle = 'cyan';
-    ctx.fillText('Sec: '+(vals.sec), 10, 100);
-    ctx.fillStyle = 'red';
-    ctx.fillText('Cot: '+(vals.cot), 10, 120);
-    ctx.fillStyle = '#111';
+    ctx.fillStyle = colors.purple;
+    ctx.fillText('Sin: '+roundDec(vals.sin), 10, 20);
+    ctx.fillStyle = colors.green;
+    ctx.fillText('Cos: '+roundDec(vals.cos), 10, 40);
+    ctx.fillStyle = colors.orange;
+    ctx.fillText('Tan: '+roundDec(vals.tan), 10, 60);
+    ctx.fillStyle = colors.teal;
+    ctx.fillText('Sec: '+roundDec(vals.sec), 10, 100);
+    ctx.fillStyle = colors.pink;
+    ctx.fillText('Csc: '+roundDec(vals.csc), 10, 80);
+    ctx.fillStyle = colors.red;
+    ctx.fillText('Cot: '+roundDec(vals.cot), 10, 120);
+    ctx.fillStyle = '#fff'; 
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -183,21 +203,21 @@ function updateDraw({ angle = 0 } = {}){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw grid and unit circle
     drawGrid();
-    drawUnitCircle({color: (isMouseDown ? '#999' : '#111')});
+    drawUnitCircle({color: (isMouseDown ? colors.gray : '#fff')});
     // draw sine of theta
-    drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, 'purple');
+    drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, colors.purple);
     // draw cosine of theta
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, 'green');
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, colors.green);
     // draw tangent of theta (uses the secantX)
-    drawLine({x: pointX, y: pointY}, {x: secantX, y: centerY}, 'orange'); 
+    drawLine({x: pointX, y: pointY}, {x: secantX, y: centerY}, colors.orange); 
     // draw secant of theta
-    drawLine({x: centerX, y: centerY}, {x: secantX, y: centerY}, 'cyan');
+    drawLine({x: centerX, y: centerY}, {x: secantX, y: centerY}, colors.teal);
     // draw cotangent of theta (uses the cosecantY)
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecantY}, 'red'); 
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecantY}, colors.red); 
     // draw cosecant of theta
-    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecantY}, 'pink'); 
+    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecantY}, colors.pink); 
     // draw arctan (main angle line)
-    drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, 'black'); 
+    drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, '#fff'); 
     // draw tangent point
     drawPoint({x: secantX, y: centerY});
     // draw cotangent point
@@ -250,8 +270,8 @@ function drawFnGraph({theta = 0} = {}){
     // clear 
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
     // set vals
-    ctx2.lineWidth = 2;
-    ctx2.strokeStyle = '#111'; 
+    ctx2.lineWidth = 3;
+    ctx2.strokeStyle = '#fff'; 
     // Graph Line Y
     ctx2.beginPath();
     ctx2.moveTo(graphXmin, graphYmin);
@@ -262,47 +282,60 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.moveTo(graphXmin, graphYmax);
     ctx2.lineTo(graphXmax, graphYmax);
     ctx2.stroke();
-    // Graph Line 0 (middle)
-    ctx2.strokeStyle = '#ddd'; 
+    // Graph Line 0 (middle) 
+    ctx2.strokeStyle = colors.gray; 
+    ctx2.globalAlpha = 0.4;
     ctx2.lineWidth = 1;
     ctx2.beginPath();
     ctx2.setLineDash([5, 5]); 
     ctx2.moveTo(graphXmin, graphYmin + (graphHeight / 2));
     ctx2.lineTo(graphXmax, graphYmin + (graphHeight / 2));
     ctx2.stroke();
+    ctx2.globalAlpha = 1;
+    ctx2.setLineDash([]);
     ////////////////////////////////////////////////////
     // Cosine Wave
     let dotNum = 100;
     let dotDist = graphWidth / dotNum;
+    ctx2.globalAlpha = 0.6;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        ctx2.fillStyle = '#ddd'; 
+        ctx2.fillStyle = colors.gray;
         ctx2.arc(graphXmin + i, graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
     }
+    ctx.globalAlpha = 1;
     // Sine dot
     ctx2.beginPath();
-    ctx2.fillStyle = 'green'; 
+    ctx2.fillStyle = colors.green; 
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 1;
     ctx2.arc(graphCenterX, graphCenterY + (-Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
     ctx2.fill();
+    ctx2.stroke();
     ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
     // Sine Wave
     dotNum = 100;
     dotDist = graphWidth / dotNum;
+    ctx2.globalAlpha = 0.6;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        ctx2.fillStyle = '#ddd'; 
+        ctx2.fillStyle = colors.gray; 
         ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
     }
+    ctx2.globalAlpha = 1;
     // Sine dot
     ctx2.beginPath();
-    ctx2.fillStyle = 'purple'; 
+    ctx2.fillStyle = colors.purple; 
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 1;
     ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 6, 0, 2 * Math.PI); 
     ctx2.fill();
+    ctx2.stroke();
     ////////////////////////////////////////////////////
     // reset
     ctx2.setLineDash([]);
