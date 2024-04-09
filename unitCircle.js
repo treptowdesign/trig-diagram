@@ -4,7 +4,7 @@
 
 const width = 600;
 const height = 600;
-const canvas = document.getElementById('unitCircleCanvas');
+const canvas = document.getElementById('unitCircleCanvas'); 
 const ctx = canvas.getContext('2d');
 const ratio = window.devicePixelRatio || 1;
 
@@ -95,6 +95,7 @@ function drawPoint(point){
 function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
     let thetaArc = {start: 0, end: 0}; // theta start & end
     let raOffset = {x: 0, y: 0}; // right angle offset x & y
+    // adjust values based on unit circle quadrant 
     if (angle < (-Math.PI / 2)) {
         [thetaArc.start, thetaArc.end] = [-Math.PI, angle]; 
         raOffset = {x: 6, y: -6};
@@ -146,6 +147,7 @@ function displayValues(vals){
 /////////////////////////////////////////////////////////////////////
 
 function updateDraw({ angle = 0 } = {}){
+    console.log('Theta: ', angle);
     // calc trig function values
     const vals = {
         sin: Math.sin(angle),
