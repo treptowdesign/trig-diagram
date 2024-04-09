@@ -3,9 +3,26 @@
 <head>
     <title>Interactive Unit Circle</title>
     <meta name="viewport" content="width=500, initial-scale=1" />
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-    <canvas id="unitCircleCanvas"></canvas>
+    <div class="app">
+        <div class="container">
+            <div class="grid">
+                <div class="cell">
+                    <div id="figureUnitCircle">
+                        <canvas id="unitCircleCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="cell">
+                    <div id="figureWaveGraph">
+                        <canvas id="waveGraph"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
     <script src="unitCircle.js"></script>
 </body>
 </html>

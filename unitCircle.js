@@ -2,11 +2,13 @@
 // Setup
 /////////////////////////////////////////////////////////////////////
 
-const width = 600;
-const height = 600;
+const ratio = window.devicePixelRatio || 1;
+
+const figEl = document.getElementById('figureUnitCircle');
+const width = figEl.offsetWidth;
+const height = figEl.offsetWidth;
 const canvas = document.getElementById('unitCircleCanvas'); 
 const ctx = canvas.getContext('2d');
-const ratio = window.devicePixelRatio || 1;
 
 canvas.width = width * ratio;
 canvas.height = height * ratio;
@@ -16,11 +18,25 @@ ctx.scale(ratio, ratio);
 
 const centerX = (canvas.width / 2) / ratio;
 const centerY = (canvas.height / 2) / ratio; 
-const radius = 100;
+const radius = (canvas.width / 6) / ratio;
 
 // Mouse States (to be updated by events)
 let mousePos = {x: 0, y: 0};
 let isMouseDown = false;
+
+// 2nd canvas
+const figEl2 = document.getElementById('figureWaveGraph');
+const width2 = figEl2.offsetWidth;
+const height2 = figEl2.offsetWidth;
+const canvas2 = document.getElementById('waveGraph'); 
+const ctx2 = canvas2.getContext('2d');
+
+canvas2.width = width2 * ratio;
+canvas2.height = height2 * ratio;
+canvas2.style.width = width + 'px';
+canvas2.style.height = height + 'px';
+ctx2.scale(ratio, ratio); 
+
 
 /////////////////////////////////////////////////////////////////////
 // Helper Functions
@@ -46,7 +62,7 @@ function drawGrid() {
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#ddd'; 
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i <= canvas.width; i += 100) {
+    for (let i = 0; i <= canvas.width; i += radius) {
         ctx.beginPath();
         ctx.setLineDash([]); 
         ctx.moveTo(i, 0);
@@ -55,7 +71,7 @@ function drawGrid() {
         ctx.lineTo(canvas.width, i);
         ctx.stroke();
     }
-    for (let i = 50; i < canvas.width; i += 100) {
+    for (let i = (radius/2); i < canvas.width; i += radius) {
         ctx.beginPath();
         ctx.setLineDash([5, 5]); 
         ctx.moveTo(i, 0);
@@ -68,7 +84,7 @@ function drawGrid() {
     ctx.strokeStyle = '#111'; 
 }
 
-function drawUnitCircle({ color = '#111', radius = 100 } = {}){
+function drawUnitCircle({ color = '#111'} = {}){
     ctx.lineWidth = 2;
     ctx.strokeStyle = color; 
     ctx.beginPath();
@@ -128,17 +144,17 @@ function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
 function displayValues(vals){
     ctx.font = '14px Arial';
     ctx.fillStyle = 'purple';
-    ctx.fillText('Sin: '+(vals.sin), 20, 20);
+    ctx.fillText('Sin: '+(vals.sin), 10, 20);
     ctx.fillStyle = 'green';
-    ctx.fillText('Cos: '+(vals.cos), 20, 40);
+    ctx.fillText('Cos: '+(vals.cos), 10, 40);
     ctx.fillStyle = 'orange';
-    ctx.fillText('Tan: '+(vals.tan), 20, 60);
+    ctx.fillText('Tan: '+(vals.tan), 10, 60);
     ctx.fillStyle = 'pink';
-    ctx.fillText('Csc: '+(vals.csc), 20, 80);
+    ctx.fillText('Csc: '+(vals.csc), 10, 80);
     ctx.fillStyle = 'cyan';
-    ctx.fillText('Sec: '+(vals.sec), 20, 100);
+    ctx.fillText('Sec: '+(vals.sec), 10, 100);
     ctx.fillStyle = 'red';
-    ctx.fillText('Cot: '+(vals.cot), 20, 120);
+    ctx.fillText('Cot: '+(vals.cot), 10, 120);
     ctx.fillStyle = '#111';
 }
 
@@ -189,12 +205,14 @@ function updateDraw({ angle = 0 } = {}){
     drawPoint({x: centerX, y: centerY});
     // draw intersection point
     drawPoint({x: pointX, y: pointY});
-
     // theta arc 
     drawAngleArcs({angle: angle, cosX: pointX});
-
     // display values via text
     displayValues(vals);
+
+    // function graph 
+    // drawFnGraph({sin: vals.sin * radius});
+    drawFnGraph({theta: angle});
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -203,6 +221,68 @@ function updateDraw({ angle = 0 } = {}){
 
 const initAngle = -1 * (Math.PI / 4);
 updateDraw({angle: initAngle});
+
+/////////////////////////////////////////////////////////////////////
+// Draw Function Graph (starting with Sine)
+/////////////////////////////////////////////////////////////////////
+
+function drawFnGraph({theta = 0} = {}){
+
+    const graphXmin = radius;
+    const graphXmax = canvas2.width - radius;
+    const graphYmin = canvas2.width / 3;
+    const graphYmax = (canvas2.width / 3) * 2;
+    const graphWidth = graphXmax - graphXmin;
+    const graphHeight= graphYmax - graphYmin;
+    const graphCenterX = graphXmin + (graphWidth / 2);
+    const graphCenterY = graphYmin + (graphHeight / 2);
+
+    // clear 
+    ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+    // set vals
+    ctx2.lineWidth = 2;
+    ctx2.strokeStyle = '#111'; 
+    // Graph Line Y
+    ctx2.beginPath();
+    ctx2.moveTo(graphXmin, graphYmin);
+    ctx2.lineTo(graphXmin, graphYmax);
+    ctx2.stroke();
+    // Graph Line X
+    ctx2.beginPath();
+    ctx2.moveTo(graphXmin, graphYmax);
+    ctx2.lineTo(graphXmax, graphYmax);
+    ctx2.stroke();
+    // Graph Line 0 (middle)
+    ctx2.strokeStyle = '#ddd'; 
+    ctx2.lineWidth = 1;
+    ctx2.beginPath();
+    ctx2.setLineDash([5, 5]); 
+    ctx2.moveTo(graphXmin, (canvas2.width / 2));
+    ctx2.lineTo(graphXmax, (canvas2.width / 2));
+    ctx2.stroke();
+    // Dot Loop 
+    const dotNum = 30;
+    const dotDist = graphWidth / dotNum;
+    for (let i = 0; i <= graphWidth; i += dotDist) {
+        // % = i / graphWidth
+        ctx2.beginPath();
+        ctx2.fillStyle = '#ccc'; 
+        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(theta + ((i / graphWidth) * (Math.PI * 4))) * radius), 3, 0, 2 * Math.PI); 
+        ctx2.fill();
+    }
+    // Sine dot
+    ctx2.beginPath();
+    ctx2.fillStyle = 'purple'; 
+    ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 3, 0, 2 * Math.PI); 
+    ctx2.fill();
+    // reset
+    ctx2.setLineDash([]);
+    ctx2.fillStyle = '#111';
+    ctx2.strokeStyle = '#111'; 
+}
+
+// drawFnGraph();
+
 
 /////////////////////////////////////////////////////////////////////
 // Mouse Events
