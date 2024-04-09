@@ -229,9 +229,9 @@ updateDraw({angle: initAngle});
 function drawFnGraph({theta = 0} = {}){
 
     const graphXmin = radius;
-    const graphXmax = canvas2.width - radius;
-    const graphYmin = canvas2.width / 3;
-    const graphYmax = (canvas2.width / 3) * 2;
+    const graphXmax = radius * 5;
+    const graphYmin = radius * 2;
+    const graphYmax = radius * 4;
     const graphWidth = graphXmax - graphXmin;
     const graphHeight= graphYmax - graphYmin;
     const graphCenterX = graphXmin + (graphWidth / 2);
@@ -261,13 +261,13 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.lineTo(graphXmax, (canvas2.width / 2));
     ctx2.stroke();
     // Dot Loop 
-    const dotNum = 30;
+    const dotNum = 100;
     const dotDist = graphWidth / dotNum;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        ctx2.fillStyle = '#ccc'; 
-        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(theta + ((i / graphWidth) * (Math.PI * 4))) * radius), 3, 0, 2 * Math.PI); 
+        ctx2.fillStyle = '#ddd'; 
+        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 3, 0, 2 * Math.PI); 
         ctx2.fill();
     }
     // Sine dot
