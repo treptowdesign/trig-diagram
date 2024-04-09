@@ -257,24 +257,43 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.lineWidth = 1;
     ctx2.beginPath();
     ctx2.setLineDash([5, 5]); 
-    ctx2.moveTo(graphXmin, (canvas2.width / 2));
-    ctx2.lineTo(graphXmax, (canvas2.width / 2));
+    ctx2.moveTo(graphXmin, graphYmin + (graphHeight / 2));
+    ctx2.lineTo(graphXmax, graphYmin + (graphHeight / 2));
     ctx2.stroke();
-    // Dot Loop 
-    const dotNum = 100;
-    const dotDist = graphWidth / dotNum;
+    ////////////////////////////////////////////////////
+    // Cosine Wave
+    let dotNum = 100;
+    let dotDist = graphWidth / dotNum;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
         ctx2.fillStyle = '#ddd'; 
-        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 3, 0, 2 * Math.PI); 
+        ctx2.arc(graphXmin + i, graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
+        ctx2.fill();
+    }
+    // Sine dot
+    ctx2.beginPath();
+    ctx2.fillStyle = 'green'; 
+    ctx2.arc(graphCenterX, graphCenterY + (-Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
+    ctx2.fill();
+    ////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    // Sine Wave
+    dotNum = 100;
+    dotDist = graphWidth / dotNum;
+    for (let i = 0; i <= graphWidth; i += dotDist) {
+        // % = i / graphWidth
+        ctx2.beginPath();
+        ctx2.fillStyle = '#ddd'; 
+        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
     }
     // Sine dot
     ctx2.beginPath();
     ctx2.fillStyle = 'purple'; 
-    ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 3, 0, 2 * Math.PI); 
+    ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 6, 0, 2 * Math.PI); 
     ctx2.fill();
+    ////////////////////////////////////////////////////
     // reset
     ctx2.setLineDash([]);
     ctx2.fillStyle = '#111';
