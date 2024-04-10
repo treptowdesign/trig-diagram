@@ -273,7 +273,10 @@ function drawFnGraph({theta = 0} = {}){
         ctx2.beginPath();
         // ctx2.fillStyle = colors.gray; 
         ctx2.fillStyle = colors.teal; 
-        ctx2.arc(graphXmin + i, graphCenterY + (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
+        const graphValue = (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
+        if(Math.abs(graphValue) < 3 * radius){ // dont draw offscreen dots
+            ctx2.arc(graphXmin + i, graphCenterY + graphValue, 2, 0, 2 * Math.PI); 
+        }
         ctx2.fill();
     }
     ctx2.globalAlpha = 1;
