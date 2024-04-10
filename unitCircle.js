@@ -231,8 +231,7 @@ function updateDraw({ angle = 0 } = {}){
     // display values via text
     displayValues(vals);
 
-    // function graph 
-    // drawFnGraph({sin: vals.sin * radius});
+    // function graph
     drawFnGraph({theta: angle});
 }
 
@@ -258,41 +257,28 @@ WebFont.load({
 
 function drawFnGraph({theta = 0} = {}){
 
-    const graphXmin = radius;
-    const graphXmax = radius * 5;
+    const graphXmin = 0;
+    const graphXmax = canvas2.width;
     const graphYmin = radius * 2;
     const graphYmax = radius * 4;
     const graphWidth = graphXmax - graphXmin;
-    const graphHeight= graphYmax - graphYmin;
+    const graphHeight = graphYmax - graphYmin;
     const graphCenterX = graphXmin + (graphWidth / 2);
     const graphCenterY = graphYmin + (graphHeight / 2);
+    const textOffset = radius / 22;
+    const labelText = {
+        0: ' ',
+        1: ' 2',
+        2: ' 1',
+        3: ' 0',
+        4: '-1',
+        5: '-2',
+        6: ' ',
+    };
 
-    // clear 
+    // clear set initial ctx settings
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-    // set vals
-    ctx2.lineWidth = 3;
-    ctx2.strokeStyle = '#fff'; 
-    // Graph Line Y
-    ctx2.beginPath();
-    ctx2.moveTo(graphXmin, graphYmin);
-    ctx2.lineTo(graphXmin, graphYmax);
-    ctx2.stroke();
-    // Graph Line X
-    ctx2.beginPath();
-    ctx2.moveTo(graphXmin, graphYmax);
-    ctx2.lineTo(graphXmax, graphYmax);
-    ctx2.stroke();
-    // Graph Line 0 (middle) 
-    ctx2.strokeStyle = colors.gray; 
-    ctx2.globalAlpha = 0.4;
-    ctx2.lineWidth = 1;
-    ctx2.beginPath();
-    ctx2.setLineDash([5, 5]); 
-    ctx2.moveTo(graphXmin, graphYmin + (graphHeight / 2));
-    ctx2.lineTo(graphXmax, graphYmin + (graphHeight / 2));
-    ctx2.stroke();
-    ctx2.globalAlpha = 1;
-    ctx2.setLineDash([]);
+
     ////////////////////////////////////////////////////
     // Cosine Wave
     let dotNum = 100;
@@ -306,15 +292,6 @@ function drawFnGraph({theta = 0} = {}){
         ctx2.fill();
     }
     ctx.globalAlpha = 1;
-    // Sine dot
-    ctx2.beginPath();
-    ctx2.fillStyle = colors.green; 
-    ctx2.strokeStyle = '#fff';
-    ctx2.lineWidth = 1;
-    ctx2.arc(graphCenterX, graphCenterY + (-Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
-    ctx2.fill();
-    ctx2.stroke();
-    ////////////////////////////////////////////////////
     ////////////////////////////////////////////////////
     // Sine Wave
     dotNum = 100;
@@ -328,6 +305,16 @@ function drawFnGraph({theta = 0} = {}){
         ctx2.fill();
     }
     ctx2.globalAlpha = 1;
+    ////////////////////////////////////////////////////
+    // Cosine dot
+    ctx2.beginPath();
+    ctx2.fillStyle = colors.green; 
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 1;
+    ctx2.arc(graphCenterX, graphCenterY + (-Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
+    ctx2.fill();
+    ctx2.stroke();
+    ////////////////////////////////////////////////////
     // Sine dot
     ctx2.beginPath();
     ctx2.fillStyle = colors.purple; 
@@ -335,6 +322,68 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.lineWidth = 1;
     ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 6, 0, 2 * Math.PI); 
     ctx2.fill();
+    ctx2.stroke();
+    ////////////////////////////////////////////////////
+    // Draw Xpi line...
+    function piToX({pi = 0} = {}) {
+        return ((theta + (pi * Math.PI)) + (Math.PI)) / (Math.PI * 2);
+        // theta + pi makes it 0 - 2pi positive instead of -pi -> pi so we can divide by 2pi and get a percentage for x-value
+        // (pi * Math.PI) is an offset for how far along the unit circle you are
+    }
+    ctx2.setLineDash([5, 5]);
+    for (let i = 0; i <= 1.5; i += 0.5) {
+        const lineX = (canvas2.width * piToX({pi: i}) % canvas2.width);
+        ctx2.globalAlpha = 0.3;
+        ctx2.strokeStyle = colors.gray; 
+        ctx2.beginPath();
+        ctx2.moveTo(lineX, canvas2.height - radius);
+        ctx2.lineTo(lineX, canvas2.height);
+        ctx2.stroke();
+        // draw pilabel
+        ctx2.globalAlpha = 1;
+        ctx2.fillStyle = '#fff'; 
+        ctx2.fillText(i+'pi', lineX - 10, canvas2.height - 20); 
+    }
+    ctx2.setLineDash([]);
+    ////////////////////////////////////////////////////
+    // X-Axis Gridlines
+    let gridIndex = 0;
+    for (let i = 0; i <= canvas2.height; i += radius) {
+        ctx2.lineWidth = 1;
+        if(gridIndex == 2 || gridIndex == 4){
+            ctx2.lineWidth = 2;
+        }
+        ctx2.globalAlpha = 0.3;
+        ctx2.strokeStyle = colors.gray; 
+        // draw line path
+        ctx2.beginPath();
+        ctx2.setLineDash([5, 5]);
+        ctx2.moveTo(0, i);
+        ctx2.lineTo(canvas2.width, i);
+        ctx2.stroke();
+        // draw num label
+        ctx2.globalAlpha = 1;
+        ctx2.fillStyle = '#fff'; 
+        ctx2.fillText(labelText[gridIndex], radius * 0.65, i + textOffset); 
+        gridIndex++;
+    }
+    // Draw Theta line at Center 
+    ctx2.globalAlpha = 0.3;
+    ctx2.strokeStyle = colors.gray; 
+    ctx2.setLineDash([]);
+    ctx2.beginPath();
+    ctx2.moveTo(canvas2.width / 2 , 0);
+    ctx2.lineTo(canvas2.width / 2, canvas2.height);
+    ctx2.stroke();
+    // reset draw settings
+    ctx2.globalAlpha = 1;
+    ctx2.setLineDash([]);
+    ctx2.lineWidth = 3;
+    ctx2.strokeStyle = '#fff'; 
+    // Graph Bar Y
+    ctx2.beginPath();
+    ctx2.moveTo(radius, 0);
+    ctx2.lineTo(radius, canvas2.height);
     ctx2.stroke();
     ////////////////////////////////////////////////////
     // reset
