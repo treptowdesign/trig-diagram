@@ -194,10 +194,10 @@ function drawFnGraph({theta = 0} = {}){
     const graphXmax = canvas2.width;
     const graphYmin = radius * 2;
     const graphYmax = radius * 4;
-    const graphWidth = graphXmax - graphXmin;
-    const graphHeight = graphYmax - graphYmin;
-    const graphCenterX = graphXmin + (graphWidth / 2);
-    const graphCenterY = graphYmin + (graphHeight / 2);
+    const graphWidth = (graphXmax - graphXmin) / ratio;
+    const graphHeight = canvas2.height / ratio;
+    const graphCenterX = (canvas2.width / 2) / ratio;
+    const graphCenterY = (canvas2.height / 2) / ratio;
     const textOffset = radius / 22;
     const labelText = {
         0: ' ',
@@ -220,7 +220,6 @@ function drawFnGraph({theta = 0} = {}){
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        // ctx2.fillStyle = colors.gray;
         ctx2.fillStyle = colors.green;
         ctx2.arc(graphXmin + i, graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
@@ -233,11 +232,13 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.globalAlpha = 0.6;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
-        ctx2.beginPath();
-        // ctx2.fillStyle = colors.gray; 
-        ctx2.fillStyle = colors.purple; 
-        ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
-        ctx2.fill();
+        const graphValue = (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius); 
+        if(Math.abs(graphValue) < 3 * radius){ // dont draw offscreen dots
+            ctx2.beginPath();
+            ctx2.fillStyle = colors.purple; 
+            ctx2.arc(graphXmin + i, graphCenterY + graphValue, 2, 0, 2 * Math.PI); 
+            ctx2.fill();
+        }
     }
     ctx2.globalAlpha = 1;
     ////////////////////////////////////////////////////
@@ -248,7 +249,6 @@ function drawFnGraph({theta = 0} = {}){
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        // ctx2.fillStyle = colors.gray; 
         ctx2.fillStyle = colors.orange; 
         ctx2.arc(graphXmin + i, graphCenterY - (Math.tan(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
@@ -270,14 +270,13 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.globalAlpha = 0.6;
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
-        ctx2.beginPath();
-        // ctx2.fillStyle = colors.gray; 
-        ctx2.fillStyle = colors.teal; 
         const graphValue = (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
         if(Math.abs(graphValue) < 3 * radius){ // dont draw offscreen dots
+            ctx2.beginPath();
+            ctx2.fillStyle = colors.teal; 
             ctx2.arc(graphXmin + i, graphCenterY + graphValue, 2, 0, 2 * Math.PI); 
+            ctx2.fill();
         }
-        ctx2.fill();
     }
     ctx2.globalAlpha = 1;
     ////////////////////////////////////////////////////
@@ -316,17 +315,17 @@ function drawFnGraph({theta = 0} = {}){
     }
     ctx2.setLineDash([5, 5]);
     for (let i = 0; i <= 1.5; i += 0.5) {
-        const lineX = (canvas2.width * piToX({pi: i}) % canvas2.width);
+        const lineX = (graphWidth * piToX({pi: i}) % graphWidth);
         ctx2.globalAlpha = 0.3;
         ctx2.strokeStyle = colors.gray; 
         ctx2.beginPath();
-        ctx2.moveTo(lineX, canvas2.height - radius);
-        ctx2.lineTo(lineX, canvas2.height);
+        ctx2.moveTo(lineX, graphHeight - radius);
+        ctx2.lineTo(lineX, graphHeight);
         ctx2.stroke();
         // draw pilabel
         ctx2.globalAlpha = 1;
         ctx2.fillStyle = '#fff'; 
-        ctx2.fillText(i+'pi', lineX - 10, canvas2.height - 20); 
+        ctx2.fillText(i+'pi', lineX - 10, graphWidth - 20); 
     }
     ctx2.setLineDash([]);
     ////////////////////////////////////////////////////
@@ -356,8 +355,8 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.strokeStyle = colors.gray; 
     ctx2.setLineDash([]);
     ctx2.beginPath();
-    ctx2.moveTo(canvas2.width / 2 , 0);
-    ctx2.lineTo(canvas2.width / 2, canvas2.height);
+    ctx2.moveTo(graphCenterX, 0);
+    ctx2.lineTo(graphCenterX, canvas2.height);
     ctx2.stroke();
     // reset draw settings
     ctx2.globalAlpha = 1;
