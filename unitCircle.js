@@ -163,7 +163,7 @@ function drawAngleArcs({ angle = 0, cosX = 0 } = {}){
     ctx.stroke();
 }
 
-function displayValues(vals){
+function displayValues({vals = {}, theta = 0} = {}){
     ctx.fillStyle = colors.purple;
     ctx.fillText('Sin: '+roundDec(vals.sin), 10, 20);
     ctx.fillStyle = colors.green;
@@ -177,86 +177,19 @@ function displayValues(vals){
     ctx.fillStyle = colors.red;
     ctx.fillText('Cot: '+roundDec(vals.cot), 10, 120);
     ctx.fillStyle = '#fff'; 
+    ctx.fillText('Theta: '+roundDec(theta), 10, canvas.height - 20);
+    // ctx.fillText('Theta: '+roundDec(theta < 0 ? -theta + Math.PI : theta), 10, canvas.height - 20);
+    // ctx.fillText('Theta: '+(theta + Math.PI), 10, canvas.height - 20);
+    // unit circle has negative radians, fn graph does not - need to reconcile 
 }
 
-/////////////////////////////////////////////////////////////////////
-// Main Update Function
-/////////////////////////////////////////////////////////////////////
 
-function updateDraw({ angle = 0 } = {}){
-    console.log('Theta: ', angle);
-    // calc trig function values
-    const vals = {
-        sin: Math.sin(angle),
-        cos: Math.cos(angle),
-        tan: Math.tan(angle),
-        sec: (1 / Math.cos(angle)),
-        csc: (1 / Math.sin(angle)),
-        cot: (1 / Math.tan(angle))
-    }
-    // get points from values
-    const pointX = centerX + (radius * vals.cos);
-    const pointY = centerY + (radius * vals.sin);
-    const secantX = centerX + (radius * vals.sec);
-    const cosecantY = centerY + (radius * vals.csc);
-    // clear 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // draw grid and unit circle
-    drawGrid();
-    drawUnitCircle({color: (isMouseDown ? colors.gray : '#fff')});
-    // draw sine of theta
-    drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, colors.purple);
-    // draw cosine of theta
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, colors.green);
-    // draw tangent of theta (uses the secantX)
-    drawLine({x: pointX, y: pointY}, {x: secantX, y: centerY}, colors.orange); 
-    // draw secant of theta
-    drawLine({x: centerX, y: centerY}, {x: secantX, y: centerY}, colors.teal);
-    // draw cotangent of theta (uses the cosecantY)
-    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecantY}, colors.red); 
-    // draw cosecant of theta
-    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecantY}, colors.pink); 
-    // draw arctan (main angle line)
-    drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, '#fff'); 
-    // draw tangent point
-    drawPoint({x: secantX, y: centerY});
-    // draw cotangent point
-    drawPoint({x: centerX, y: cosecantY});
-    // draw center point
-    drawPoint({x: centerX, y: centerY});
-    // draw intersection point
-    drawPoint({x: pointX, y: pointY});
-    // theta arc 
-    drawAngleArcs({angle: angle, cosX: pointX});
-    // display values via text
-    displayValues(vals);
-
-    // function graph
-    drawFnGraph({theta: angle});
-}
-
-/////////////////////////////////////////////////////////////////////
-// Initializing
-/////////////////////////////////////////////////////////////////////
-
-const initAngle = -1 * (Math.PI / 4);
-updateDraw({angle: initAngle});
-
-WebFont.load({
-    google: {
-    families: ['PT Serif:400,700']
-    },
-    active: function() {
-        updateDraw({angle: initAngle}); // redrawing to make font render
-    }
-});
 
 /////////////////////////////////////////////////////////////////////
 // Draw Function Graph (starting with Sine)
 /////////////////////////////////////////////////////////////////////
 
 function drawFnGraph({theta = 0} = {}){
-
     const graphXmin = 0;
     const graphXmax = canvas2.width;
     const graphYmin = radius * 2;
@@ -287,7 +220,8 @@ function drawFnGraph({theta = 0} = {}){
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        ctx2.fillStyle = colors.gray;
+        // ctx2.fillStyle = colors.gray;
+        ctx2.fillStyle = colors.green;
         ctx2.arc(graphXmin + i, graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
     }
@@ -300,11 +234,58 @@ function drawFnGraph({theta = 0} = {}){
     for (let i = 0; i <= graphWidth; i += dotDist) {
         // % = i / graphWidth
         ctx2.beginPath();
-        ctx2.fillStyle = colors.gray; 
+        // ctx2.fillStyle = colors.gray; 
+        ctx2.fillStyle = colors.purple; 
         ctx2.arc(graphXmin + i, graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
         ctx2.fill();
     }
     ctx2.globalAlpha = 1;
+    ////////////////////////////////////////////////////
+    // Tan Wave
+    dotNum = 200;
+    dotDist = graphWidth / dotNum;
+    ctx2.globalAlpha = 0.6;
+    for (let i = 0; i <= graphWidth; i += dotDist) {
+        // % = i / graphWidth
+        ctx2.beginPath();
+        // ctx2.fillStyle = colors.gray; 
+        ctx2.fillStyle = colors.orange; 
+        ctx2.arc(graphXmin + i, graphCenterY - (Math.tan(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
+        ctx2.fill();
+    }
+    ctx2.globalAlpha = 1;
+    ////////////////////////////////////////////////////
+    // Tan dot
+    ctx2.beginPath();
+    ctx2.fillStyle = colors.orange; 
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 1;
+    ctx2.arc(graphCenterX, graphCenterY + (Math.tan(theta) * radius), 6, 0, 2 * Math.PI); 
+    ctx2.fill();
+    ctx2.stroke();
+    ////////////////////////////////////////////////////
+    // Sec Wave
+    dotNum = 200;
+    dotDist = graphWidth / dotNum;
+    ctx2.globalAlpha = 0.6;
+    for (let i = 0; i <= graphWidth; i += dotDist) {
+        // % = i / graphWidth
+        ctx2.beginPath();
+        // ctx2.fillStyle = colors.gray; 
+        ctx2.fillStyle = colors.teal; 
+        ctx2.arc(graphXmin + i, graphCenterY + (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
+        ctx2.fill();
+    }
+    ctx2.globalAlpha = 1;
+    ////////////////////////////////////////////////////
+    // Sec dot
+    ctx2.beginPath();
+    ctx2.fillStyle = colors.teal; 
+    ctx2.strokeStyle = '#fff';
+    ctx2.lineWidth = 1;
+    ctx2.arc(graphCenterX, graphCenterY - (1 / Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
+    ctx2.fill();
+    ctx2.stroke();
     ////////////////////////////////////////////////////
     // Cosine dot
     ctx2.beginPath();
@@ -392,8 +373,79 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.strokeStyle = '#111'; 
 }
 
-// drawFnGraph();
+/////////////////////////////////////////////////////////////////////
+// Main Update Function
+/////////////////////////////////////////////////////////////////////
 
+function updateDraw({ angle = 0 } = {}){
+    console.log('Theta: ', angle);
+    // calc trig function values
+    const vals = {
+        sin: Math.sin(angle),
+        cos: Math.cos(angle),
+        tan: Math.tan(angle),
+        sec: (1 / Math.cos(angle)),
+        csc: (1 / Math.sin(angle)),
+        cot: (1 / Math.tan(angle))
+    }
+    // get points from values
+    const pointX = centerX + (radius * vals.cos);
+    const pointY = centerY + (radius * vals.sin);
+    const secantX = centerX + (radius * vals.sec);
+    const cosecantY = centerY + (radius * vals.csc);
+    // clear 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // draw grid and unit circle
+    drawGrid();
+    drawUnitCircle({color: (isMouseDown ? colors.gray : '#fff')});
+    // draw sine of theta
+    drawLine({x: pointX, y: pointY}, {x: pointX, y: centerY}, colors.purple);
+    // draw cosine of theta
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: pointY}, colors.green);
+    // draw tangent of theta (uses the secantX)
+    drawLine({x: pointX, y: pointY}, {x: secantX, y: centerY}, colors.orange); 
+    // draw secant of theta
+    drawLine({x: centerX, y: centerY}, {x: secantX, y: centerY}, colors.teal);
+    // draw cotangent of theta (uses the cosecantY)
+    drawLine({x: pointX, y: pointY}, {x: centerX, y: cosecantY}, colors.red); 
+    // draw cosecant of theta
+    drawLine({x: centerX, y: centerY}, {x: centerX, y: cosecantY}, colors.pink); 
+    // draw arctan (main angle line)
+    drawLine({x: centerX, y: centerY}, {x: pointX, y: pointY}, '#fff'); 
+    // draw tangent point
+    drawPoint({x: secantX, y: centerY});
+    // draw cotangent point
+    drawPoint({x: centerX, y: cosecantY});
+    // draw center point
+    drawPoint({x: centerX, y: centerY});
+    // draw intersection point
+    drawPoint({x: pointX, y: pointY});
+    // theta arc 
+    drawAngleArcs({angle: angle, cosX: pointX});
+    // display values via text
+    displayValues({vals: vals, theta: angle});
+
+
+    /////////////////////////////////////////////////////////////////////
+    // function graph - Canvas2
+    drawFnGraph({theta: angle});
+}
+
+/////////////////////////////////////////////////////////////////////
+// Initializing
+/////////////////////////////////////////////////////////////////////
+
+const initAngle = -1 * (Math.PI / 4);
+updateDraw({angle: initAngle});
+
+WebFont.load({
+    google: {
+    families: ['PT Serif:400,700']
+    },
+    active: function() {
+        updateDraw({angle: initAngle}); // redrawing to make font render
+    }
+});
 
 /////////////////////////////////////////////////////////////////////
 // Mouse Events
