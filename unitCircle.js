@@ -39,6 +39,11 @@ canvas2.style.height = height + 'px';
 ctx2.scale(ratio, ratio); 
 ctx2.font = '600 14px "Noto Serif"';
 
+const graphWidth = canvas2.width / ratio;
+const graphHeight = canvas2.height / ratio;
+const graphCenterX = (canvas2.width / 2) / ratio;
+const graphCenterY = (canvas2.height / 2) / ratio;
+
 // Colors 
 const colors = {
     gray: '#7a909e',
@@ -177,7 +182,7 @@ function displayValues({vals = {}, theta = 0} = {}){
     ctx.fillStyle = colors.red;
     ctx.fillText('Cot: '+roundDec(vals.cot), 10, 120);
     ctx.fillStyle = '#fff'; 
-    ctx.fillText('Theta: '+roundDec(theta), 10, canvas.height - 20);
+    ctx.fillText('Theta: '+roundDec(theta), 10, (canvas.height / ratio) - 20);
     // ctx.fillText('Theta: '+roundDec(theta < 0 ? -theta + Math.PI : theta), 10, canvas.height - 20);
     // ctx.fillText('Theta: '+(theta + Math.PI), 10, canvas.height - 20);
     // unit circle has negative radians, fn graph does not - need to reconcile 
@@ -189,15 +194,46 @@ function displayValues({vals = {}, theta = 0} = {}){
 // Draw Function Graph (starting with Sine)
 /////////////////////////////////////////////////////////////////////
 
+function resetDrawSettings({c = null} = {}){
+    // console.log('RESET', c);
+    if(c){ // context
+        c.globalAlpha = 1;
+    } else { console.log('No Context specified'); }
+}
+
+function drawFunctionLine({c = null, dotNum = 100, color = '#fff', fn = null } = {}){
+    if(c && fn){ // context
+        const dotDist = graphWidth / dotNum; // space between points on line
+        c.globalAlpha = 0.6;
+        for (let i = 0; i <= graphWidth; i += dotDist) { // % = i / graphWidth
+            const posY = fn(i);
+            if( posY < graphHeight && posY > 0 ){ // need check to skip draw on offscreen points
+                c.beginPath();
+                c.fillStyle = color;
+                c.arc(i, posY, 2, 0, 2 * Math.PI); 
+                c.fill(); 
+            }
+        }
+        resetDrawSettings({c: c});
+    } else { console.log('No Context or Line Function specified'); }
+}
+
+function drawFunctionPoint({c = null, color = '#fff', posY = 0} = {}){
+    if(c){ // context
+        c.beginPath();
+        c.fillStyle = color; 
+        c.strokeStyle = '#fff';
+        c.lineWidth = 1;
+        c.arc(graphCenterX, posY, 6, 0, 2 * Math.PI); 
+        c.fill();
+        c.stroke();
+        resetDrawSettings({c: c});
+    } else { console.log('No Context specified'); }
+}
+
+
+
 function drawFnGraph({theta = 0} = {}){
-    const graphXmin = 0;
-    const graphXmax = canvas2.width;
-    const graphYmin = radius * 2;
-    const graphYmax = radius * 4;
-    const graphWidth = (graphXmax - graphXmin) / ratio;
-    const graphHeight = canvas2.height / ratio;
-    const graphCenterX = (canvas2.width / 2) / ratio;
-    const graphCenterY = (canvas2.height / 2) / ratio;
     const textOffset = radius / 22;
     const labelText = {
         0: ' ',
@@ -206,106 +242,59 @@ function drawFnGraph({theta = 0} = {}){
         3: ' 0',
         4: '-1',
         5: '-2',
-        6: ' ',
+        6: ' '
     };
 
     // clear set initial ctx settings
     ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
 
-    ////////////////////////////////////////////////////
-    // Cosine Wave
-    let dotNum = 100;
-    let dotDist = graphWidth / dotNum;
-    ctx2.globalAlpha = 0.6;
-    for (let i = 0; i <= graphWidth; i += dotDist) {
-        // % = i / graphWidth
-        ctx2.beginPath();
-        ctx2.fillStyle = colors.green;
-        ctx2.arc(graphXmin + i, graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
-        ctx2.fill();
-    }
-    ctx.globalAlpha = 1;
-    ////////////////////////////////////////////////////
-    // Sine Wave
-    dotNum = 100;
-    dotDist = graphWidth / dotNum;
-    ctx2.globalAlpha = 0.6;
-    for (let i = 0; i <= graphWidth; i += dotDist) {
-        // % = i / graphWidth
-        const graphValue = (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius); 
-        if(Math.abs(graphValue) < 3 * radius){ // dont draw offscreen dots
-            ctx2.beginPath();
-            ctx2.fillStyle = colors.purple; 
-            ctx2.arc(graphXmin + i, graphCenterY + graphValue, 2, 0, 2 * Math.PI); 
-            ctx2.fill();
-        }
-    }
-    ctx2.globalAlpha = 1;
-    ////////////////////////////////////////////////////
-    // Tan Wave
-    dotNum = 200;
-    dotDist = graphWidth / dotNum;
-    ctx2.globalAlpha = 0.6;
-    for (let i = 0; i <= graphWidth; i += dotDist) {
-        // % = i / graphWidth
-        ctx2.beginPath();
-        ctx2.fillStyle = colors.orange; 
-        ctx2.arc(graphXmin + i, graphCenterY - (Math.tan(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius), 2, 0, 2 * Math.PI); 
-        ctx2.fill();
-    }
-    ctx2.globalAlpha = 1;
-    ////////////////////////////////////////////////////
-    // Tan dot
-    ctx2.beginPath();
-    ctx2.fillStyle = colors.orange; 
-    ctx2.strokeStyle = '#fff';
-    ctx2.lineWidth = 1;
-    ctx2.arc(graphCenterX, graphCenterY + (Math.tan(theta) * radius), 6, 0, 2 * Math.PI); 
-    ctx2.fill();
-    ctx2.stroke();
-    ////////////////////////////////////////////////////
-    // Sec Wave
-    dotNum = 200;
-    dotDist = graphWidth / dotNum;
-    ctx2.globalAlpha = 0.6;
-    for (let i = 0; i <= graphWidth; i += dotDist) {
-        // % = i / graphWidth
-        const graphValue = (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
-        if(Math.abs(graphValue) < 3 * radius){ // dont draw offscreen dots
-            ctx2.beginPath();
-            ctx2.fillStyle = colors.teal; 
-            ctx2.arc(graphXmin + i, graphCenterY + graphValue, 2, 0, 2 * Math.PI); 
-            ctx2.fill();
-        }
-    }
-    ctx2.globalAlpha = 1;
-    ////////////////////////////////////////////////////
-    // Sec dot
-    ctx2.beginPath();
-    ctx2.fillStyle = colors.teal; 
-    ctx2.strokeStyle = '#fff';
-    ctx2.lineWidth = 1;
-    ctx2.arc(graphCenterX, graphCenterY - (1 / Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
-    ctx2.fill();
-    ctx2.stroke();
-    ////////////////////////////////////////////////////
-    // Cosine dot
-    ctx2.beginPath();
-    ctx2.fillStyle = colors.green; 
-    ctx2.strokeStyle = '#fff';
-    ctx2.lineWidth = 1;
-    ctx2.arc(graphCenterX, graphCenterY + (-Math.cos(theta) * radius), 6, 0, 2 * Math.PI); 
-    ctx2.fill();
-    ctx2.stroke();
-    ////////////////////////////////////////////////////
-    // Sine dot
-    ctx2.beginPath();
-    ctx2.fillStyle = colors.purple; 
-    ctx2.strokeStyle = '#fff';
-    ctx2.lineWidth = 1;
-    ctx2.arc(graphCenterX, graphCenterY + (Math.sin(theta) * radius), 6, 0, 2 * Math.PI); 
-    ctx2.fill();
-    ctx2.stroke();
+    // Define the function to plot the line, call the draw and pass in the function
+    
+    
+    // Cosecant Line Plot
+    const lineFnCsc = function(i) {
+        return graphCenterY + (1 / Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius); 
+    };
+    drawFunctionLine({c: ctx2, dotNum: 100, color: colors.pink, fn: lineFnCsc});
+
+    // Cot Line Plot
+    const lineFnCot = function(i) {
+        return graphCenterY - (1 / Math.tan(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
+    };
+    drawFunctionLine({c: ctx2, dotNum: 200, color: colors.red, fn: lineFnCot});
+
+    // Sec Line Plot
+    const lineFnSec = function(i) {
+        return graphCenterY + (1 / Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
+    };
+    drawFunctionLine({c: ctx2, dotNum: 200, color: colors.teal, fn: lineFnSec});
+
+    // Tan Line Plot
+    const lineFnTan = function(i) {
+        return graphCenterY - (Math.tan(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
+    };
+    drawFunctionLine({c: ctx2, dotNum: 200, color: colors.orange, fn: lineFnTan});
+
+    // Consine Line Plot
+    const lineFnCos = function(i) {
+        return graphCenterY + (Math.cos(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius);
+    };
+    drawFunctionLine({c: ctx2, dotNum: 100, color: colors.green, fn: lineFnCos});
+
+    // Sine Line Plot
+    const lineFnSin = function(i) {
+        return graphCenterY + (Math.sin(-theta + ((i / graphWidth) * (Math.PI * 2))) * radius); 
+    };
+    drawFunctionLine({c: ctx2, dotNum: 100, color: colors.purple, fn: lineFnSin});
+
+    // Point Markers
+    drawFunctionPoint({c: ctx2, color: colors.pink, posY: (graphCenterY + (1 / Math.sin(theta) * radius)) }); // csc
+    drawFunctionPoint({c: ctx2, color: colors.red, posY: (graphCenterY + (1 / Math.tan(theta) * radius)) }); // cot
+    drawFunctionPoint({c: ctx2, color: colors.orange, posY: (graphCenterY + (Math.tan(theta) * radius)) }); // tan
+    drawFunctionPoint({c: ctx2, color: colors.teal, posY: (graphCenterY - (1 / Math.cos(theta) * radius)) }); // sec
+    drawFunctionPoint({c: ctx2, color: colors.green, posY: (graphCenterY + (-Math.cos(theta) * radius)) }); // cos
+    drawFunctionPoint({c: ctx2, color: colors.purple, posY: (graphCenterY + (Math.sin(theta) * radius)) }); // sin
+
     ////////////////////////////////////////////////////
     // Draw Xpi line...
     function piToX({pi = 0} = {}) {
@@ -328,7 +317,6 @@ function drawFnGraph({theta = 0} = {}){
         ctx2.fillText(i+'pi', lineX - 10, graphWidth - 20); 
     }
     ctx2.setLineDash([]);
-    ////////////////////////////////////////////////////
     // X-Axis Gridlines
     let gridIndex = 0;
     for (let i = 0; i <= canvas2.height; i += radius) {
@@ -368,11 +356,12 @@ function drawFnGraph({theta = 0} = {}){
     ctx2.moveTo(radius, 0);
     ctx2.lineTo(radius, canvas2.height);
     ctx2.stroke();
-    ////////////////////////////////////////////////////
     // reset
     ctx2.setLineDash([]);
     ctx2.fillStyle = '#111';
     ctx2.strokeStyle = '#111'; 
+    ////////////////////////////////////////////////////
+
 }
 
 /////////////////////////////////////////////////////////////////////
